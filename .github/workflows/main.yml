@@ -52,3 +52,4 @@ jobs:
         deployment_package: deployment-package.zip
     - name: Deployed
       run: echo '______ App deployed to ELB ______'
+      
