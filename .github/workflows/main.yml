@@ -2,11 +2,11 @@ name: .NET
 
 on:
   push:
-    branches: [ "mains" ]
+    branches: [ "master" ]
 
 env:
-  DOTNET_APP_NAME: dotnet-application
-  DOTNET_ENV_NAME: dotnet-application-dev
+  DOTNET_APP_NAME: dotnet-app
+  DOTNET_ENV_NAME: Dotnet-app-env
 
 jobs:
   build:
