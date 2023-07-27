@@ -1,0 +1,27 @@
+{
+  "family": "dot-net-app-task",
+  "containerDefinitions": [
+    {
+      "name": "dot-net-app",
+      "image": "285984116532.dkr.ecr.ap-south-1.amazonaws.com/dotnet-app:${{ github.sha }}",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80, 
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "memory": 512,
+      "cpu": 256
+    }
+  ],
+  "executionRoleArn": "ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "taskRoleArn": "ecsTaskExecutionRole"
+}
