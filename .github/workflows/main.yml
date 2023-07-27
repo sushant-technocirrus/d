@@ -1,0 +1,56 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0
+
+    - name: Restore dependencies
+      run: dotnet restore src
+
+    - name: Build
+      run: dotnet build src --no-restore
+
+    - name: Test
+      run: dotnet test src --no-build --verbosity normal
+
+    - name: Publish
+      run: dotnet publish src -c Release -o website -r linux-x64 --self-contained false
+
+    - name: Zip deployment package
+      run: cd website; zip -r ../deployment-package.zip .; cd ..
+
+    - name: Copy artifacts to S3
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+    - run: aws s3 cp deployment-package.zip s3://dotnet-app-artifacts-bucket/
+
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v21
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: dotnet-app # Should be replaced with your application name
+        environment_name: dotnet-app-dev # Should be replaced with your application environment name
+        use_existing_version_if_available: true
+        version_label: "version-${{ github.run_id }}"
+        region: ${{ secrets.AWS_DEFAULT_REGION }}
+        deployment_package: deployment-package.zip
+    - name: Deployed
+      run: echo '______ App deployed to ELB ______'
